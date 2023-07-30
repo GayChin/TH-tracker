@@ -2,10 +2,16 @@ import express from "express";
 import "dotenv/config";
 import { startMQTT } from "./mqtt.js";
 import { queryData } from "./database.js";
+import cors from "cors";
+
+const { APP_URL } = process.env;
+
 const app = express();
 const port = 3000;
 
 // startMQTT()
+
+app.use(cors({ origin: `${APP_URL}` }));
 
 app.get("/", async (req, res) => {
   //   const queryObj = {
@@ -18,7 +24,7 @@ app.get("/", async (req, res) => {
 
   try {
     const data = await queryData(req.query);
-    console.log(data)
+    console.log(data);
     res.status(200).send(data);
   } catch (error) {
     console.log("server error: ", error);

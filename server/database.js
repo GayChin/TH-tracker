@@ -43,10 +43,13 @@ export const writeData = async (data) => {
 export const queryData = async (queryObj) => {
   const queryApi = dbClient.getQueryApi(INFLUXDB_ORG, INFLUXDB_BUCKET, "ms");
 
+  console.log(queryObj);
   const {
     field,
     location,
-    timeRange = hourInMS * 24,
+    timeRange = queryObj.timeRange
+      ? fluxDuration(queryObj.timeRange)
+      : fluxDuration("24h"),
     window = fluxDuration("1m"),
     agFunction = "mean",
   } = queryObj;
@@ -57,7 +60,7 @@ export const queryData = async (queryObj) => {
   `;
 
   const fieldArray = Array.isArray(field) ? field : [field];
-  const locationArray = Array.isArray(location) ? location: [location];
+  const locationArray = Array.isArray(location) ? location : [location];
 
   if (field) {
     for (let i = 0; i < fieldArray.length; i++) {
@@ -87,17 +90,16 @@ export const queryData = async (queryObj) => {
   |> aggregateWindow(every: ${window}, fn: ${agFunction}, createEmpty: false)
   |> yield(name: "${agFunction}")`;
 
-  console.log('Flux query is : ' , fluxQuery)
+  console.log("Flux query is : ", fluxQuery);
 
   const data = (await queryApi.collectRows(fluxQuery)).map((item) => ({
-      location: item.location,
-      device: item.devices,
-      field: item._field,
-      value: item._value,
-      timestamp: item._time,
-      result: item.result
-  }));;
+    location: item.location,
+    device: item.devices,
+    field: item._field,
+    value: item._value,
+    timestamp: item._time,
+    result: item.result,
+  }));
 
-  return data
- 
+  return data;
 };
