@@ -43,7 +43,6 @@ export const writeData = async (data) => {
 export const queryData = async (queryObj) => {
   const queryApi = dbClient.getQueryApi(INFLUXDB_ORG, INFLUXDB_BUCKET, "ms");
 
-  console.log(queryObj);
   const {
     field,
     location,
@@ -89,8 +88,6 @@ export const queryData = async (queryObj) => {
   fluxQuery += `
   |> aggregateWindow(every: ${window}, fn: ${agFunction}, createEmpty: false)
   |> yield(name: "${agFunction}")`;
-
-  console.log("Flux query is : ", fluxQuery);
 
   const data = (await queryApi.collectRows(fluxQuery)).map((item) => ({
     location: item.location,
