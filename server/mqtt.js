@@ -27,7 +27,7 @@ export const startMQTT = () => {
     try {
       writeData(message);
     } catch (e) {
-      console.log('MQTT error -' , 'topic : ',  topic , ' ' , e.message);
+      console.log("MQTT error -", "topic : ", topic, " ", e.message);
     }
   });
 };

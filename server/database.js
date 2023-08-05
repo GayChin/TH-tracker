@@ -6,6 +6,7 @@ import {
   flux,
   fluxDuration,
 } from "@influxdata/influxdb-client";
+import { SITE_DATA } from "./constants/site-data.js";
 
 const { INFLUXDB_TOKEN, INFLUXDB_ORG, INFLUXDB_BUCKET } = process.env;
 const dbClient = new InfluxDB({
@@ -21,7 +22,6 @@ export const writeData = async (data) => {
 
   const point = new Point("data")
     .tag("location", data.locationName)
-    .tag("devices", data.deviceId)
     .floatField("temperature", data.temperature)
     .floatField("humidity", data.humidity)
     .timestamp(data.timestamp);
@@ -43,13 +43,34 @@ export const writeData = async (data) => {
 export const queryData = async (queryObj) => {
   const queryApi = dbClient.getQueryApi(INFLUXDB_ORG, INFLUXDB_BUCKET, "ms");
 
+  let window;
+  switch (queryObj.timeRange) {
+    case "5m":
+      window = fluxDuration("10s");
+      break;
+    case "1h":
+      window = fluxDuration("1m");
+      break;
+    case "6h":
+      window = fluxDuration("5m");
+      break;
+    case "24h":
+      window = fluxDuration("15m");
+      break;
+    case "30d":
+      window = fluxDuration("1h");
+      break;
+
+    default:
+      break;
+  }
+
   const {
     field,
     location,
     timeRange = queryObj.timeRange
       ? fluxDuration(queryObj.timeRange)
       : fluxDuration("24h"),
-    window = fluxDuration("1m"),
     agFunction = "mean",
   } = queryObj;
 
@@ -58,7 +79,9 @@ export const queryData = async (queryObj) => {
   |> filter(fn: (r) => r._measurement == "data")
   `;
 
+  // handle single value or multiple values in the same query param
   const fieldArray = Array.isArray(field) ? field : [field];
+
   const locationArray = Array.isArray(location) ? location : [location];
 
   if (field) {
@@ -89,14 +112,5 @@ export const queryData = async (queryObj) => {
   |> aggregateWindow(every: ${window}, fn: ${agFunction}, createEmpty: false)
   |> yield(name: "${agFunction}")`;
 
-  const data = (await queryApi.collectRows(fluxQuery)).map((item) => ({
-    location: item.location,
-    device: item.devices,
-    field: item._field,
-    value: item._value,
-    timestamp: item._time,
-    result: item.result,
-  }));
-
-  return data;
+  return await queryApi.collectRows(fluxQuery);
 };

@@ -12,6 +12,8 @@
     "@fortawesome/free-solid-svg-icons": "^6.4.0",
     "@fortawesome/vue-fontawesome": "^3.0.3",
     "chart.js": "^4.3.0",
+    "chartjs-adapter-dayjs-4": "^1.0.4",
+    "dayjs": "^1.11.9",
     "vue": "^3.3.4",
     "vue-router": "^4.2.2"
   },

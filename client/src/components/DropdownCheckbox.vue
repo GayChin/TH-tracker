@@ -27,7 +27,6 @@ const emit = defineEmits(['updateOptions', 'dropdownClick'])
 
 function handleCheckboxChange(item) {
     optionsCheckedCount.value = optionsChecked.value.length
-    console.log(prop.field)
     emit('updateOptions', optionsChecked.value, prop.field)
 }
 
@@ -40,7 +39,6 @@ watch(() => prop.isOpen, (newIsOpen) => {
     if (!newIsOpen) dropdownIsOpen.value = false;
 })
 
-onMounted(() => console.log(prop.options));
 </script>
 
 <template>
@@ -66,11 +64,12 @@ onMounted(() => console.log(prop.options));
             <ul class="p-3 space-y-3 text-sm text-gray-700 dark:text-gray-200">
                 <li v-for="(option, index) in options" :key="index">
                     <div class="flex items-center">
-                        <input id="checkbox-item-1" type="checkbox" :value="option.value" v-model="optionsChecked"
+                        <input :id="'checkbox-item-' + index" type="checkbox" :value="option.value" v-model="optionsChecked"
                             @change="handleCheckboxChange(option)"
                             class="w-4 h-4 text-primary-600 bg-gray-100 border-gray-300 rounded focus:ring-main-500 dark:focus:ring-main-600 dark:ring-offset-gray-700 dark:focus:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500" />
-                        <label for="checkbox-item-1" class="ml-2 text-sm font-medium text-gray-900 dark:text-gray-300">{{
-                            option.name }}</label>
+                        <label :for="'checkbox-item-' + index"
+                            class="ml-2 text-sm font-medium text-gray-900 dark:text-gray-300">{{
+                                option.name }}</label>
                     </div>
                 </li>
             </ul>
