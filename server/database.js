@@ -30,7 +30,7 @@ export const writeData = async (data) => {
 
   try {
     await writeApi.close();
-    console.log("DATA SUCCESFULLY WRITTEN... ");
+    // console.log("DATA SUCCESFULLY WRITTEN... ");
   } catch (e) {
     console.error(e);
     if (e instanceof HttpError && e.statusCode === 401) {

@@ -47,7 +47,6 @@ const plugin = {
 const config = ref({
     type: 'line',
     data: data,
-    label: [],
     options: {
     },
     plugins: [plugin],
@@ -144,18 +143,16 @@ watch(() => prop.data, (newPropData) => {
                     stepSize
                 }
             }
-        }
+        },
+        animation: false
     }
 
 
     config.value = { ...config.value, data: { datasets: newData }, options: newOptions }
     if (chart) {
-        chart.destroy()
-        console.log('chart is destroyed! new value is : ', config.value.data)
-        chart = new Chart(document.getElementById(prop.chartId), config.value)
-        // chart.Legend.prototype.afterFit = function () {
-        //     this.height = this.height + 50;
-        // };
+        chart.data = { datasets: newData }
+        chart.options = newOptions
+        chart.update()
     }
 
 })
